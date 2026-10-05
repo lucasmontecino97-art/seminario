@@ -1,0 +1,536 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farmacia Salud+</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f8f7;
+  color: #253b38;
+}
+header {
+  background: #087f69;
+  color: white;
+  padding: 18px 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+.logo { font-size: 25px; font-weight: bold; }
+.logo span { color: #b7f5df; }
+button { cursor: pointer; border: none; border-radius: 8px; }
+.header-btn {
+  padding: 11px 16px;
+  background: white;
+  color: #087f69;
+  font-weight: bold;
+}
+.hero {
+  padding: 45px 6%;
+  background: linear-gradient(110deg,#d8f7ec,#f4fcf8);
+}
+.hero h1 { font-size: 36px; margin: 0 0 10px; }
+.hero p { color: #55716a; font-size: 17px; }
+main { padding: 25px 6%; }
+.toolbar {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+input, select, textarea {
+  padding: 12px;
+  border: 1px solid #cbd8d4;
+  border-radius: 8px;
+  font: inherit;
+  width: 100%;
+}
+#search { flex: 1; min-width: 200px; }
+.toolbar select { max-width: 220px; }
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 310px;
+  gap: 24px;
+  align-items: start;
+}
+.products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(190px,1fr));
+  gap: 18px;
+}
+.product {
+  background: white;
+  border-radius: 13px;
+  padding: 16px;
+  box-shadow: 0 3px 12px #163b2b0c;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.product .emoji {
+  height: 115px;
+  background: #e9f7f1;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 55px;
+}
+.product h3 { margin: 2px 0; font-size: 17px; }
+.category { color: #6d827c; font-size: 13px; }
+.price { color: #087f69; font-weight: bold; font-size: 21px; }
+.add, .primary {
+  padding: 11px;
+  background: #087f69;
+  color: white;
+  font-weight: bold;
+}
+.add:hover, .primary:hover { background: #056653; }
+.cart {
+  background: white;
+  border-radius: 13px;
+  padding: 20px;
+  box-shadow: 0 3px 12px #163b2b0c;
+  position: sticky;
+  top: 15px;
+}
+.cart h2 { margin-top: 0; }
+.cart-item {
+  border-bottom: 1px solid #e6eeeb;
+  padding: 12px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 14px;
+}
+.cart-item button { background: #fee9e7; color: #ae3d34; padding: 5px 8px; }
+.total {
+  font-size: 21px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+.muted { color: #788b85; font-size: 13px; }
+footer {
+  text-align: center;
+  background: #e4f2ed;
+  padding: 25px;
+  color: #567169;
+  margin-top: 35px;
+}
+.modal-bg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #0009;
+  z-index: 10;
+  padding: 20px;
+  overflow-y: auto;
+}
+.modal {
+  background: white;
+  max-width: 600px;
+  margin: 30px auto;
+  padding: 24px;
+  border-radius: 14px;
+}
+.modal h2 { margin-top: 0; }
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 15px 0;
+}
+.form-grid .full { grid-column: 1 / -1; }
+.form-row { margin: 12px 0; }
+.form-row label { display: block; margin-bottom: 6px; font-weight: bold; }
+.actions { display: flex; gap: 10px; margin-top: 18px; }
+.secondary { background: #e8efec; padding: 11px 15px; }
+.admin-product {
+  border: 1px solid #e0e9e5;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+}
+.admin-product input { margin: 5px 0; }
+.notice { padding: 12px; background: #fff4d7; border-radius: 8px; font-size: 13px; }
+.empty { padding: 25px; text-align: center; color: #788b85; }
+@media(max-width:750px) {
+  .layout { grid-template-columns: 1fr; }
+  .cart { position: static; }
+  .hero h1 { font-size: 28px; }
+}
+@media(max-width:450px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .form-grid .full { grid-column: auto; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">✚ Farmacia <span>Salud+</span></div>
+  <button class="header-btn" onclick="showCart()">🛒 Carrito (<span id="cartCount">0</span>)</button>
+</header>
+
+<section class="hero">
+  <h1>Tu salud, nuestra prioridad 💚</h1>
+  <p>Encontrá tus productos de farmacia y cuidado personal en un solo lugar.</p>
+  <strong>🚚 Consultá las opciones de entrega al finalizar tu pedido.</strong>
+</section>
+
+<main>
+  <h2>Productos disponibles</h2>
+  <div class="toolbar">
+    <input id="search" placeholder="🔍 Buscar productos..." oninput="renderProducts()">
+    <select id="category" onchange="renderProducts()">
+      <option value="">Todas las categorías</option>
+      <option>Medicamentos</option>
+      <option>Higiene</option>
+      <option>Cuidado personal</option>
+      <option>Perfumería</option>
+    </select>
+  </div>
+
+  <div class="layout">
+    <section class="products" id="products"></section>
+
+    <aside class="cart" id="cart">
+      <h2>🛒 Mi carrito</h2>
+      <div id="cartItems"></div>
+      <div class="total">
+        <span>Total</span><span id="total">$0</span>
+      </div>
+      <button class="primary" style="width:100%" onclick="checkout()">
+        Finalizar pedido
+      </button>
+      <p class="muted">Pedido de demostración. No se realizan pagos reales.</p>
+    </aside>
+  </div>
+</main>
+
+<footer>
+  <strong>Farmacia Salud+</strong><br>
+  Proyecto académico de aplicación web.<br>
+  <small>Los productos y precios son ficticios.</small>
+</footer>
+
+<!-- Panel de administración -->
+<div class="modal-bg" id="adminModal">
+  <div class="modal">
+    <h2>⚙️ Administración</h2>
+    <p class="muted">Editá los productos y sus precios desde acá.</p>
+    <div id="adminList"></div>
+    <h3>Agregar producto</h3>
+    <div class="form-grid">
+      <input id="newName" placeholder="Nombre del producto">
+      <input id="newPrice" type="number" min="0" placeholder="Precio en pesos">
+      <select id="newCategory">
+        <option>Medicamentos</option>
+        <option>Higiene</option>
+        <option>Cuidado personal</option>
+        <option>Perfumería</option>
+      </select>
+      <input id="newEmoji" placeholder="Emoji (ej. 💊)">
+    </div>
+    <div class="actions">
+      <button class="primary" onclick="addProduct()">Agregar producto</button>
+      <button class="secondary" onclick="closeModal('adminModal')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Formulario de pedido -->
+<div class="modal-bg" id="checkoutModal">
+  <div class="modal">
+    <h2>📦 Finalizar pedido</h2>
+    <form onsubmit="submitOrder(event)">
+      <div class="form-row">
+        <label>Nombre y apellido</label>
+        <input id="customerName" required placeholder="Tu nombre">
+      </div>
+      <div class="form-row">
+        <label>Teléfono</label>
+        <input id="customerPhone" required type="tel" placeholder="Tu teléfono">
+      </div>
+      <div class="form-row">
+        <label>Dirección de entrega</label>
+        <input id="customerAddress" required placeholder="Calle y número">
+      </div>
+      <div class="form-row">
+        <label>Forma de entrega</label>
+        <select id="delivery">
+          <option>Retiro en farmacia</option>
+          <option>Envío a domicilio (a coordinar)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Observaciones</label>
+        <textarea id="notes" rows="3" placeholder="Indicaciones adicionales..."></textarea>
+      </div>
+      <div class="notice">
+        Esta versión guarda el pedido como una demostración local.
+        No envía datos a una farmacia real ni procesa pagos.
+      </div>
+      <div class="actions">
+        <button class="primary" type="submit">Confirmar pedido</button>
+        <button class="secondary" type="button" onclick="closeModal('checkoutModal')">Volver</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Acceso al panel -->
+<div style="text-align:center;padding:10px">
+  <button class="secondary" onclick="openAdmin()">⚙️ Administrar productos</button>
+</div>
+
+<script>
+const initialProducts = [
+  {id:1,name:"Paracetamol 500 mg",price:1800,category:"Medicamentos",emoji:"💊"},
+  {id:2,name:"Alcohol en gel",price:2500,category:"Higiene",emoji:"🧴"},
+  {id:3,name:"Shampoo",price:4200,category:"Cuidado personal",emoji:"🧼"},
+  {id:4,name:"Protector solar",price:8500,category:"Cuidado personal",emoji:"☀️"},
+  {id:5,name:"Pasta dental",price:2300,category:"Higiene",emoji:"🪥"},
+  {id:6,name:"Perfume",price:12000,category:"Perfumería",emoji:"🌸"},
+  {id:7,name:"Curitas",price:1500,category:"Medicamentos",emoji:"🩹"},
+  {id:8,name:"Crema hidratante",price:5200,category:"Cuidado personal",emoji:"🧴"}
+];
+
+let products = JSON.parse(localStorage.getItem("farmaciaProducts")) || initialProducts;
+let cart = JSON.parse(localStorage.getItem("farmaciaCart")) || [];
+
+function money(value) {
+  return "$" + Number(value).toLocaleString("es-AR");
+}
+
+function save() {
+  localStorage.setItem("farmaciaProducts", JSON.stringify(products));
+  localStorage.setItem("farmaciaCart", JSON.stringify(cart));
+}
+
+function renderProducts() {
+  const search = document.getElementById("search").value.toLowerCase();
+  const category = document.getElementById("category").value;
+  const filtered = products.filter(p =>
+    p.name.toLowerCase().includes(search) &&
+    (!category || p.category === category)
+  );
+
+  document.getElementById("products").innerHTML = filtered.length
+    ? filtered.map(p => `
+      <article class="product">
+        <div class="emoji">${escapeHTML(p.emoji)}</div>
+        <div class="category">${escapeHTML(p.category)}</div>
+        <h3>${escapeHTML(p.name)}</h3>
+        <div class="price">${money(p.price)}</div>
+        <button class="add" onclick="addToCart(${p.id})">
+          Agregar al carrito
+        </button>
+      </article>
+    `).join("")
+    : '<div class="empty">No se encontraron productos.</div>';
+}
+
+function renderCart() {
+  const container = document.getElementById("cartItems");
+  document.getElementById("cartCount").textContent =
+    cart.reduce((sum,item) => sum + item.qty, 0);
+
+  if (!cart.length) {
+    container.innerHTML = '<div class="empty">Tu carrito está vacío.</div>';
+  } else {
+    container.innerHTML = cart.map(item => {
+      const p = products.find(x => x.id === item.id);
+      if (!p) return "";
+      return `
+        <div class="cart-item">
+          <div>
+            <strong>${escapeHTML(p.name)}</strong><br>
+            ${money(p.price)} × ${item.qty}
+            <div style="margin-top:7px">
+              <button onclick="changeQty(${p.id},-1)">−</button>
+              <button onclick="changeQty(${p.id},1)">+</button>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <strong>${money(p.price * item.qty)}</strong><br>
+            <button style="margin-top:8px" onclick="removeFromCart(${p.id})">Quitar</button>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  const total = cart.reduce((sum,item) => {
+    const p = products.find(x => x.id === item.id);
+    return sum + (p ? p.price * item.qty : 0);
+  },0);
+  document.getElementById("total").textContent = money(total);
+  save();
+}
+
+function addToCart(id) {
+  const item = cart.find(x => x.id === id);
+  if (item) item.qty++;
+  else cart.push({id,qty:1});
+  renderCart();
+}
+
+function changeQty(id,amount) {
+  const item = cart.find(x => x.id === id);
+  if (!item) return;
+  item.qty += amount;
+  if (item.qty <= 0) removeFromCart(id);
+  else renderCart();
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(x => x.id !== id);
+  renderCart();
+}
+
+function showCart() {
+  document.getElementById("cart").scrollIntoView({behavior:"smooth"});
+}
+
+function openAdmin() {
+  const password = prompt("Ingresá la clave de administración (demo: 1234):");
+  if (password !== "1234") {
+    alert("Clave incorrecta.");
+    return;
+  }
+  renderAdmin();
+  document.getElementById("adminModal").style.display = "block";
+}
+
+function renderAdmin() {
+  document.getElementById("adminList").innerHTML = products.map(p => `
+    <div class="admin-product">
+      <strong>${escapeHTML(p.name)}</strong>
+      <input type="text" id="name-${p.id}" value="${escapeHTML(p.name)}" aria-label="Nombre">
+      <input type="number" min="0" id="price-${p.id}" value="${p.price}" aria-label="Precio">
+      <button class="primary" onclick="updateProduct(${p.id})">Guardar cambios</button>
+      <button class="secondary" onclick="deleteProduct(${p.id})">Eliminar</button>
+    </div>
+  `).join("");
+}
+
+function updateProduct(id) {
+  const p = products.find(x => x.id === id);
+  const name = document.getElementById("name-"+id).value.trim();
+  const price = Number(document.getElementById("price-"+id).value);
+  if (!name || !Number.isFinite(price) || price < 0) {
+    alert("Ingresá un nombre y un precio válido.");
+    return;
+  }
+  p.name = name;
+  p.price = price;
+  save();
+  renderProducts();
+  renderCart();
+  renderAdmin();
+}
+
+function addProduct() {
+  const name = document.getElementById("newName").value.trim();
+  const price = Number(document.getElementById("newPrice").value);
+  const category = document.getElementById("newCategory").value;
+  const emoji = document.getElementById("newEmoji").value.trim() || "📦";
+
+  if (!name || document.getElementById("newPrice").value === "" ||
+      !Number.isFinite(price) || price < 0) {
+    alert("Completá el nombre y un precio válido.");
+    return;
+  }
+
+  products.push({
+    id: Date.now(),
+    name, price, category, emoji
+  });
+  save();
+  renderProducts();
+  renderAdmin();
+
+  document.getElementById("newName").value = "";
+  document.getElementById("newPrice").value = "";
+  document.getElementById("newEmoji").value = "";
+}
+
+function deleteProduct(id) {
+  if (!confirm("¿Eliminar este producto?")) return;
+  products = products.filter(p => p.id !== id);
+  cart = cart.filter(item => item.id !== id);
+  save();
+  renderProducts();
+  renderCart();
+  renderAdmin();
+}
+
+function checkout() {
+  if (!cart.length) {
+    alert("Primero agregá algún producto al carrito.");
+    return;
+  }
+  document.getElementById("checkoutModal").style.display = "block";
+}
+
+function submitOrder(event) {
+  event.preventDefault();
+  if (!cart.length) {
+    alert("El carrito está vacío.");
+    closeModal("checkoutModal");
+    return;
+  }
+
+  const order = {
+    customer: document.getElementById("customerName").value,
+    phone: document.getElementById("customerPhone").value,
+    address: document.getElementById("customerAddress").value,
+    delivery: document.getElementById("delivery").value,
+    notes: document.getElementById("notes").value,
+    items: cart.map(item => {
+      const p = products.find(x => x.id === item.id);
+      return {name:p.name,qty:item.qty,price:p.price};
+    }),
+    total: cart.reduce((sum,item) => {
+      const p = products.find(x => x.id === item.id);
+      return sum + p.price * item.qty;
+    },0),
+    date: new Date().toLocaleString("es-AR")
+  };
+
+  const orders = JSON.parse(localStorage.getItem("farmaciaOrders")) || [];
+  orders.push(order);
+  localStorage.setItem("farmaciaOrders", JSON.stringify(orders));
+
+  alert("¡Pedido de demostración registrado! Total: " + money(order.total));
+  cart = [];
+  save();
+  renderCart();
+  closeModal("checkoutModal");
+  event.target.reset();
+}
+
+function closeModal(id) {
+  document.getElementById(id).style.display = "none";
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;",
+    '"':"&quot;", "'":"&#39;"
+  })[char]);
+}
+
+renderProducts();
+renderCart();
+</script>
+</body>
+</html>
